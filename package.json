@@ -1,0 +1,14 @@
+{
+  "name": "lock-module",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/Giulio2002/Lock-Module",
+  "author": "Giulio <giulio.rebuffo@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+	"build": "npx waffle .waffle.json" 
+  },
+  "dependencies": {
+    "ethereum-waffle": "^2.0.6"
+  }
+}
