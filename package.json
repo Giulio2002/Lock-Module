@@ -6,9 +6,10 @@
   "author": "Giulio <giulio.rebuffo@gmail.com>",
   "license": "MIT",
   "scripts": {
-	"build": "npx waffle .waffle.json" 
+    "build": "npx waffle .waffle.json"
   },
   "dependencies": {
-    "ethereum-waffle": "^2.0.6"
+    "ethereum-waffle": "^2.0.6",
+    "openzeppelin-solidity": "^2.1.2"
   }
 }
