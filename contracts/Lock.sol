@@ -138,6 +138,7 @@ contract Module {
         bytes memory signatures
     ) public returns (bool){
         require(signatures.length != 0, "Invalid signatures");
+        require(signatures.length >= id[msg.sender].requiredSignatures, "not enough signatures");
         require(signatures.length % 65 == 0, "Invalid signatures");
         if (id[msg.sender].requiredSignatures == 0){
             setLimit(1 ether);
