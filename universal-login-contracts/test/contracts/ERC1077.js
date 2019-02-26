@@ -95,7 +95,7 @@ describe('ERC1077', async  () => {
 
       it('emits ExecutedSigned event', async () => {
         const messageHash = calculateMessageHash(msg);
-        await expect(identity.executeSigned(...getExecutionArgs(msg), signature + signature, overrideOptions))
+        await expect(identity.executeSigned(...getExecutionArgs(msg), signature, overrideOptions))
           .to.emit(identity, 'ExecutedSigned')
           .withArgs(messageHash, 0, true);
       });
