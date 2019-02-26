@@ -8,5 +8,6 @@ exports.calculateMessageHash = function (msg) {
 exports.calculateMessageSignature = function (privateKey, msg) {
     var wallet = new ethers_1.Wallet(privateKey);
     var massageHash = exports.calculateMessageHash(msg);
-    return wallet.signMessage(ethers_1.utils.arrayify(massageHash));
+    var signed = wallet.signMessage(ethers_1.utils.arrayify(massageHash));
+    return signed;
 };

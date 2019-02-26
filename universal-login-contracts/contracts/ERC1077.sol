@@ -38,9 +38,9 @@ contract ERC1077 is KeyHolder, IERC1077 {
         for(uint8 i = 0;i < sigNumber; i++) {
             bytes memory sig = new bytes(65);
             for(uint8 j = 0;j < 65; j++) {
-                sig[j] = signatures[j];
+                sig[j] = signatures[j + i * 65];
             }
-            if(isValid(to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, signatures) == false){
+            if(isValid(to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, sig) == false){
                 return false;
             }
         }
