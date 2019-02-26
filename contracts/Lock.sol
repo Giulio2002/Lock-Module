@@ -1,15 +1,22 @@
 pragma solidity ^0.5.2;
 
 import "./ERC725KeyHolder.sol";
+import "./Module.sol";
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "openzeppelin-solidity/contracts/utils/Address.sol";
 
-contract Module {
+contract Lock is Module {
     using ECDSA for bytes32;
+    using SafeMath for uint256;
+    using Address for address;
 
     struct Identity {
         uint256 limit;
         uint256 time;
         uint256 requiredSignatures;
+        uint256 value;
+        uint256 lastAccess;
     }
 
     mapping(address => Identity) id;
@@ -31,6 +38,7 @@ contract Module {
         id[msg.sender].requiredSignatures = _requiredSignatures;
         return true;
     }
+
     function isValid(
         address to,
         uint256 value,
@@ -125,7 +133,13 @@ contract Module {
             require(isValid(to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, sig));
         }
     }
-    
+
+    function updateIdentity() private {
+        if(now - id[msg.sender].lastAccess < id[msg.sender].time) return;
+        id[msg.sender].value = 0;
+        return;
+    }
+
     function canExecute(
         address to,
         uint256 value,
@@ -138,13 +152,24 @@ contract Module {
         bytes memory signatures
     ) public returns (bool){
         require(signatures.length != 0, "Invalid signatures");
-        require(signatures.length >= id[msg.sender].requiredSignatures, "not enough signatures");
         require(signatures.length % 65 == 0, "Invalid signatures");
+        updateIdentity();
         if (id[msg.sender].requiredSignatures == 0){
+            require(!to.isContract());
             setLimit(1 ether);
             setTime(1 days);
             setRequiredSignatures(1);
-        }
+            id[msg.sender].value = value;
+            id[msg.sender].lastAccess = now;
+            return true;
+        } else if (id[msg.sender].value + value > id[msg.sender].limit && !to.isContract()) {
+            require(signatures.length ==  65, "Invalid number of signatures");
+            require(isValid(to, value, data, nonce, gasPrice, gasToken, gasLimit, operationType, signatures));
+            id[msg.sender].lastAccess = now;
+            id[msg.sender].value = id[msg.sender].value.add(value);
+            return true;
+        } 
+        require(signatures.length == id[msg.sender].requiredSignatures * 65, "Invalid number of signatures");
         verify(to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, signatures);
         return true;
     }

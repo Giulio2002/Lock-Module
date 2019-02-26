@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MANAGEMENT_KEY = 1;
+exports.ACTION_KEY = 2;
+exports.CLAIM_KEY = 3;
+exports.ENCRYPTION_KEY = 4;
+exports.ECDSA_TYPE = 1;
+exports.RSA_TYPE = 2;
+exports.EXECUTION_TYPE_MANAGEMENT = 0;
+exports.EXECUTION_TYPE_ACTION = 1;
+exports.OPERATION_CALL = 0;
+exports.OPERATION_DELEGATECALL = 1;
+exports.OPERATION_CREATE = 2;

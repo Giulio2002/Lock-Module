@@ -1,0 +1,33 @@
+{
+  "name": "universal-login-contracts",
+  "version": "0.1.4",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "dependencies": {
+    "ens-builder": "^2.0.0"
+  },
+  "scripts": {
+    "prepublishOnly": "rm -rf build dist && yarn build",
+    "build": "waffle .waffle.js && tsc --build tsconfig.build.json",
+    "test": "mocha -r ts-node/register test -t 10000 \"test/**/*.{js,ts}\"",
+    "lint": "yarn lint:js && yarn lint:sol",
+    "lint:js": "tslint -p tsconfig.json \"{lib,test}/**/*.{ts,js}\"",
+    "lint:sol": "solium -d contracts",
+    "clean": "rm -fr node_modules build dist"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "ethereum-waffle": "2.0.5",
+    "ganache-core": "^2.2.1",
+    "mocha": "^5.2.0",
+    "openzeppelin-solidity": "^2.1.1",
+    "solium": "^1.1.8",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.3"
+  }
+}
