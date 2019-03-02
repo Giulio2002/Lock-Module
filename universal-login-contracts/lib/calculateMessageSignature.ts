@@ -19,7 +19,7 @@ export const calculateMessageHash = (msg: Message) => {
     [msg.from, msg.to, msg.value, dataHash, msg.nonce, msg.gasPrice, msg.gasToken, msg.gasLimit, msg.operationType]);
 };
 
-export const calculateMessageSignature = async (privateKey: string, msg: Message) => {
+export const calculateMessageSignature = async (privateKey: Uint8Array, msg: Message) => {
   const wallet = new Wallet(privateKey);
   const massageHash = calculateMessageHash(msg);
   return wallet.signMessage(utils.arrayify(massageHash));

@@ -19,7 +19,7 @@ contract Lock is Module {
         uint256 lastAccess;
     }
 
-    mapping(address => Identity) id;
+    mapping(address => Identity) public id;
 
     constructor() public {}
 
@@ -39,9 +39,18 @@ contract Lock is Module {
     }
 
     function updateIdentity() private {
-        if(now - id[msg.sender].lastAccess < id[msg.sender].time) return;
+        if(now.sub(id[msg.sender].lastAccess) < id[msg.sender].time) return;
         id[msg.sender].value = 0;
         return;
+    }
+
+    function initialize(uint256 _limit, uint256 _time, uint256 _requiredSignatures) public {
+      require(id[msg.sender].requiredSignatures == 0, "identity already initialised");
+      setLimit(_limit);
+      setTime(_time);
+      setRequiredSignatures(_requiredSignatures);
+      id[msg.sender].value = 0;
+      id[msg.sender].lastAccess = now;
     }
 
     function canExecute(
@@ -55,22 +64,15 @@ contract Lock is Module {
         IERC1077.OperationType operationType,
         bytes memory signatures
     ) public returns (bool){
-        if (id[msg.sender].requiredSignatures == 0){
-            require(!to.isContract());
-            setLimit(1 ether);
-            setTime(1 days);
-            setRequiredSignatures(1);
-            id[msg.sender].value = value;
-            id[msg.sender].lastAccess = now;
-            return true;
-        }
-
-        updateIdentity(); 
-        if (id[msg.sender].value + value > id[msg.sender].limit || to.isContract()) {
-            require(signatures.length == 65 * id[msg.sender].requiredSignatures, "Invalid number of signatures");
+        require(id[msg.sender].requiredSignatures != 0, "identity not initizialised");
+        updateIdentity();
+        if (id[msg.sender].value.add(value) > id[msg.sender].limit || to.isContract()) {
+            require(signatures.length == id[msg.sender].requiredSignatures.mul(65), "Invalid number of signatures");
         } else {
             require(signatures.length == 65, "Invalid number of signatures");
-            id[msg.sender].lastAccess = now;
+            if (id[msg.sender].value == 0) {
+              id[msg.sender].lastAccess = now;
+            }
             id[msg.sender].value = id[msg.sender].value.add(value);
         }
         return true;

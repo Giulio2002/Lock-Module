@@ -10,6 +10,11 @@
     "test": "mocha -r ts-node/register test -t 10000 \"test/**/*.{js,ts}\""
   },
   "dependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/jest": "^24.0.9",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "ethereum-waffle": "^2.0.6",
     "mocha": "^6.0.2",
     "openzeppelin-solidity": "^2.1.2",
