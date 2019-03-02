@@ -13,5 +13,5 @@ interface Module {
         uint gasLimit,
         IERC1077.OperationType operationType,
         bytes calldata signatures
-    ) external view returns (bool);
+    ) external returns (bool);
 }

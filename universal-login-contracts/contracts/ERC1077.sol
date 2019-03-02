@@ -34,17 +34,19 @@ contract ERC1077 is KeyHolder, IERC1077 {
         OperationType operationType,
         bytes memory signatures) public view returns (bool)
     {
-        uint sigNumber = signatures.length / 65;
-        for(uint8 i = 0;i < sigNumber; i++) {
+        address[] memory signers = new address[](signatures.length / 65);
+        for (uint8 i = 0;i < signatures.length / 65; i++) {
             bytes memory sig = new bytes(65);
-            for(uint8 j = 0;j < 65; j++) {
+            for (uint8 j = 0;j < 65; j++) {
                 sig[j] = signatures[j + i * 65];
             }
-            if(isValid(to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, sig) == false){
+            address signer = getSigner(address(this), to, value, data,nonce, gasPrice, gasToken, gasLimit, operationType, sig);
+            if (!isSignerValid(signer, signers)) {
                 return false;
             }
+            signers[i] = signer;
         }
-        bool moduleExecutable = moduleCanExecute(
+        return moduleCanExecute(
             to,
             value,
             data,
@@ -54,32 +56,6 @@ contract ERC1077 is KeyHolder, IERC1077 {
             gasLimit,
             operationType,
             signatures);
-        return moduleExecutable;
-    }
-
-        function isValid(
-        address to,
-        uint256 value,
-        bytes memory data,
-        uint nonce,
-        uint gasPrice,
-        address gasToken,
-        uint gasLimit,
-        OperationType operationType,
-        bytes memory signature) private view returns (bool)
-    {
-        address signer = getSigner(
-            address(this),
-            to,
-            value,
-            data,
-            nonce,
-            gasPrice,
-            gasToken,
-            gasLimit,
-            operationType,
-            signature);
-        return keyExist(bytes32(uint256(signer)));
     }
 
     function calculateMessageHash(
@@ -117,7 +93,7 @@ contract ERC1077 is KeyHolder, IERC1077 {
         address gasToken,
         uint gasLimit,
         OperationType operationType,
-        bytes memory signature ) public pure returns (address)
+        bytes memory signatures ) public pure returns (address)
     {
         return calculateMessageHash(
             from,
@@ -128,7 +104,7 @@ contract ERC1077 is KeyHolder, IERC1077 {
             gasPrice,
             gasToken,
             gasLimit,
-            operationType).toEthSignedMessageHash().recover(signature);
+            operationType).toEthSignedMessageHash().recover(signatures);
     }
 
     function executeSigned(
@@ -145,7 +121,7 @@ contract ERC1077 is KeyHolder, IERC1077 {
         require(signatures.length != 0, "Invalid signatures");
         require(signatures.length % 65 == 0, "Invalid signatures");
         require(nonce == _lastNonce, "Invalid nonce");
-        require(canExecute(to, value, data, nonce, gasPrice, gasToken, gasLimit, operationType, signatures), "Invalid signatures");
+        require(canExecute(to, value, data, nonce, gasPrice, gasToken, gasLimit, operationType, signatures), "Invalid signature");
         uint256 startingGas = gasleft();
         bytes memory _data;
         bool success;
@@ -168,12 +144,21 @@ contract ERC1077 is KeyHolder, IERC1077 {
         }
     }
 
-        function addModule(address module, bytes memory /*data*/) internal {
+    function isSignerValid(address signer, address[] memory signers) private view returns (bool) {
+        for (uint i = 0;i < signers.length; i++) {
+            if (signers[i] == signer) {
+                return false;
+            }
+        }
+        return keyExist(bytes32(uint256(signer)));
+    }
+
+    function addModule(address module) public onlyManagementKeyOrThisContract {
         uint256 index = _modules.push(module).sub(1);
         _moduleIndex[module] = index;
     }
 
-    function removeModule(address module) internal {
+    function removeModule(address module) public onlyManagementKeyOrThisContract {
         uint256 index = _moduleIndex[module];
         address keyToMove = _modules[_modules.length.sub(1)];
         _modules[index] = keyToMove;
@@ -191,7 +176,7 @@ contract ERC1077 is KeyHolder, IERC1077 {
         address gasToken,
         uint gasLimit,
         OperationType operationType,
-        bytes memory signatures) public view returns(bool executable)
+        bytes memory signatures) public returns(bool executable)
     {
         executable = _modules.length == 0;
         for (uint256 i=0; i<_modules.length; i++) {
