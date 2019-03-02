@@ -21,8 +21,7 @@ contract Lock is Module {
 
     mapping(address => Identity) id;
 
-    constructor() public {
-    }
+    constructor() public {}
 
     function setLimit(uint256 _limit) public returns(bool){
         id[msg.sender].limit = _limit;

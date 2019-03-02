@@ -32,7 +32,7 @@ contract ERC1077 is KeyHolder, IERC1077 {
         address gasToken,
         uint gasLimit,
         OperationType operationType,
-        bytes memory signatures) public view returns (bool)
+        bytes memory signatures) public returns (bool)
     {
         address[] memory signers = new address[](signatures.length / 65);
         for (uint8 i = 0;i < signatures.length / 65; i++) {

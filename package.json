@@ -6,10 +6,14 @@
   "author": "Giulio <giulio.rebuffo@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "npx waffle .waffle.json"
+    "build": "npx waffle .waffle.json",
+    "test": "mocha -r ts-node/register test -t 10000 \"test/**/*.{js,ts}\""
   },
   "dependencies": {
     "ethereum-waffle": "^2.0.6",
-    "openzeppelin-solidity": "^2.1.2"
+    "mocha": "^6.0.2",
+    "openzeppelin-solidity": "^2.1.2",
+    "ts-node": "^8.0.2",
+    "typescript": "^3.3.3333"
   }
 }
